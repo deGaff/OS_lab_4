@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+E:/Stud/5 sem/os/l4_2_R/main.cpp
+iostream
+-
+windows.h
+-
+menu.h
+E:/Stud/5 sem/os/l4_2_R/menu.h
+
+E:/Stud/5 sem/os/l4_2_R/menu.h
+string
+-
+vector
+-
+tuple
+-
+memory
+-
+safe_input.h
+E:/Stud/5 sem/os/l4_2_R/safe_input.h
+
+E:/Stud/5 sem/os/l4_2_R/safe_input.h
+iostream
+-
+limits
+-
+
