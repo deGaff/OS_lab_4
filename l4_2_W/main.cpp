@@ -8,7 +8,7 @@ void pipe_disconnect();
 
 OVERLAPPED over = OVERLAPPED(),
         sync = OVERLAPPED();
-HANDLE callback = CreateEvent(nullptr, FALSE, FALSE, "callback"),
+HANDLE callback = CreateEvent(nullptr, FALSE, FALSE, "event"),
         pipe = CreateNamedPipe(R"(\\.\pipe\lab)", PIPE_ACCESS_OUTBOUND,
                                PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
                                1, 512, 512, 0, nullptr);

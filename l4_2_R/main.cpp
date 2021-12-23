@@ -7,8 +7,7 @@ void receive_mes();
 void pipe_disconnect();
 
 OVERLAPPED over = OVERLAPPED();
-HANDLE callback,
-        pipe;
+HANDLE pipe;
 bool connected = false;
 
 void WINAPI Callback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
@@ -27,7 +26,6 @@ int main() {
                                           }));
     main_menu.execute();
 
-    if(callback != INVALID_HANDLE_VALUE) CloseHandle(callback);
     if(pipe != INVALID_HANDLE_VALUE) CloseHandle(pipe);
 
     return 0;
@@ -35,17 +33,10 @@ int main() {
 
 void pipe_connect() {
 
-    callback = OpenEvent(EVENT_MODIFY_STATE, true, "callback");
     pipe = CreateFile(R"(\\.\pipe\lab)", GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 
-    if(callback == INVALID_HANDLE_VALUE) {
-        std::cout << "Event was not created\n";
-        if(pipe!=INVALID_HANDLE_VALUE) CloseHandle(pipe);
-        return;
-    }
     if(pipe == INVALID_HANDLE_VALUE) {
         std::cout << "Pipe was not created\n";
-        CloseHandle(callback);
         return;
     }
     connected = true;
@@ -59,7 +50,6 @@ void receive_mes() {
         return;
     }
 
-    over.hEvent = callback;
     connected = ReadFileEx(pipe, data, 512, &over, Callback);
     if(connected) {
         SleepEx(INFINITE, true);
