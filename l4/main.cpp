@@ -12,9 +12,15 @@ int main()
                     size = (uPageCount-1)*dwPageSize;
     const char mapping_name[] = "mapping";
 
-    HANDLE eSemaphore = CreateSemaphore(nullptr, uPageCount-1, uPageCount-1, "f"),
-           fSemaphore = CreateSemaphore(nullptr, 0, uPageCount-1, "e"),
-           mutex = CreateMutex(nullptr, false, "file"),
+            HANDLE eSemaphore[uPageCount],
+           fSemaphore[uPageCount];
+
+            for(size_t i = 0; i < uPageCount; ++i) {
+                eSemaphore[i] = CreateSemaphore(nullptr, 0, 1, ("e" + std::to_string(i)).c_str());
+                fSemaphore[i] = CreateSemaphore(nullptr, 1, 1, ("f" + std::to_string(i)).c_str());
+            }
+
+           HANDLE  mutex = CreateMutex(nullptr, false, "file"),
            file = CreateFile("E:\\l4",  GENERIC_READ | GENERIC_WRITE,
                              FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr),
            map = CreateFileMapping(file, nullptr, PAGE_READWRITE, 0, 0, mapping_name),
@@ -61,7 +67,10 @@ int main()
     UnmapViewOfFile(mapping);
     CloseHandle(file);
     CloseHandle(mutex);
-    CloseHandle(eSemaphore);
-    CloseHandle(fSemaphore);
+    for(size_t i = 0; i < uPageCount; ++i) {
+        CloseHandle(eSemaphore[i]);
+        CloseHandle(fSemaphore[i]);
+    }
+
     return 0;
 }
