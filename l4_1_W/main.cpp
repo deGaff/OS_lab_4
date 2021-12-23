@@ -13,15 +13,21 @@ int main() {
     std::string out_buffer;
     out_buffer.reserve(500);
 
-    HANDLE f = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, "f"),
-            e = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, "e"),
-            mutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, "file"),
+    HANDLE  mutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, "file"),
             output = GetStdHandle(STD_OUTPUT_HANDLE),
             mapping = OpenFileMapping(FILE_MAP_READ | FILE_MAP_WRITE, FALSE, mapping_name);
 
+    HANDLE eSemaphore[21],
+            fSemaphore[21];
+
+    for(size_t i = 0; i < 21; ++i) {
+        eSemaphore[i] = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, false, ("e" + std::to_string(i)).c_str());
+        fSemaphore[i] = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, false, ("f" + std::to_string(i)).c_str());
+    }
+
     if (mapping) {
         for(unsigned i = 0; i < 3; ++i) {
-            WaitForSingleObject(f, INFINITE);
+            size_t page = WaitForMultipleObjects(21, fSemaphore, false, INFINITE);
             LOG("|TAKE|SEMAPHORE\n");
 
             WaitForSingleObject(mutex, INFINITE);
@@ -34,7 +40,7 @@ int main() {
             if(ReleaseMutex(mutex)) LOG("|RELEASE|MUTEX\n");
             else LOG("|ERROR|RELEASE MUTEX CODE:" + std::to_string(GetLastError())) + "\n";
 
-            if(ReleaseSemaphore(e, 1, nullptr)) {
+            if(ReleaseSemaphore(eSemaphore[page], 1, nullptr)) {
                 LOG("|RELEASE|SEMAPHORE\n");
                 LOG("|PAGE|NUMBER="+std::to_string(i)+"\n");
             }
